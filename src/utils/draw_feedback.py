@@ -12,7 +12,7 @@ def draw_feedback(frame, feedback):
         np.array: The annotated video frame.
     """
     font = cv2.FONT_HERSHEY_SIMPLEX
-    font_scale = 1.2  # Increase for larger text
+    font_scale = 1  # Increase for larger text
     font_color = (0, 0, 225)
     thickness = 2
     y0 = 30

@@ -26,7 +26,7 @@ list_of_files = [
     ".gitignore",
     "experiments/experiment.ipynb",
     "requirements.txt",
-    "Readme.md"
+    "README.md"
 ]
 
 for file in list_of_files:
