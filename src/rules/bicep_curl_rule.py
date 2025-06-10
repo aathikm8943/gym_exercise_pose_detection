@@ -95,6 +95,6 @@ class BicepCurlRules(BaseRuleSet):
         overall = all(r["passed"] for r in results)
         return {
             "overall_passed": overall,
-            "rep_count": self.count_reps(landmarks),
+            "rep_count": self.rep_count,
             "details": results
         }
