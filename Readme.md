@@ -1,6 +1,6 @@
-# 🎥 Exercise Movement Detection with Rule-Based Evaluation
+# Exercise Movement Detection with Rule-Based Evaluation
 
-## 📚 Table of Contents
+## Table of Contents
 
 * [Project Overview](#project-overview)
 * [Objectives](#objectives)
