@@ -1,0 +1,15 @@
+bicep_curl:
+  title: "Bicep Curl Rules"
+  rules:
+    - "Elbow angle should be between 30 - 160 degree during the curl."
+    - "Wrist must go below the elbow at the bottom."
+    - "Shoulders should remain level and steady."
+    - "Upper arm should remain vertical (elbow under shoulder)."
+
+lateral_raise:
+  title: "Lateral Raise Rules"
+  rules:
+    - "Raise arms until they are parallel to the ground."
+    - "Elbows should be roughly straight."
+    - "Shoulders must remain level."
+    - "Both arms should lift symmetrically."

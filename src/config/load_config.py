@@ -38,3 +38,7 @@ def load_rule_evaluators(config_path: str):
         evaluators[exercise_name] = rule_class()
 
     return evaluators
+
+def load_rules_description_config():
+    with open("configs/rules_description.yaml", "r") as f:
+        return yaml.safe_load(f)

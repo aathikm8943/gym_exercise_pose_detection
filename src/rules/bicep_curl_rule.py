@@ -77,47 +77,26 @@ class BicepCurlRules(BaseRuleSet):
             logging.error(f"Missing keypoint: {e}")
             return False, f"Missing keypoint: {e}"
 
-    def avoid_forward_shoulder_roll(self, landmarks):
-        """
-        Checks if shoulder doesn't move too far forward (indicating rolling or leaning).
-        """
+    def count_reps(self, landmarks, rule_passed: bool, threshold: int = 15):
         try:
-            shoulder = landmarks['left_shoulder']
-            elbow = landmarks['left_elbow']
+            if not rule_passed:
+                return self.rep_count  # Skip rep count if form is incorrect
 
-            shoulder_z = get_z_safe(shoulder)
-            elbow_z = get_z_safe(elbow)
-
-            if shoulder_z is None or elbow_z is None:
-                return False, " Z-coordinates not available for shoulder roll detection."
-
-            passed = shoulder_z < elbow_z + 30  # shoulder not too far forward
-            msg = "Shoulder is stable." if passed else " Avoid rolling shoulder forward."
-            return passed, msg
-
-        except KeyError as e:
-            logging.error(f"Missing keypoint: {e}")
-            return False, f"Missing keypoint: {e}"
-
-    def count_reps(self, landmarks, threshold: int = 15):
-        try:
             left_elbow_y = landmarks["left_elbow"][1]
             left_wrist_y = landmarks["left_wrist"][1]
 
-            # Define phase: down (wrist below elbow) or up (wrist above elbow)
             if left_wrist_y > left_elbow_y + threshold:
                 current_phase = "down"
             elif left_wrist_y < left_elbow_y - threshold:
                 current_phase = "up"
             else:
-                current_phase = self.prev_phase  # Maintain previous if unclear
+                current_phase = self.prev_phase
 
-            # Detect a full repetition
             if self.prev_phase == "down" and current_phase == "up":
                 self.rep_started = True
             elif self.prev_phase == "up" and current_phase == "down" and self.rep_started:
                 self.rep_count += 1
-                self.rep_started = False  # Reset for next rep
+                self.rep_started = False
 
             self.prev_phase = current_phase
             return self.rep_count
@@ -127,7 +106,6 @@ class BicepCurlRules(BaseRuleSet):
             return self.rep_count
 
 
-
     def evaluate_all(self, landmarks):
         results = []
 
@@ -135,8 +113,7 @@ class BicepCurlRules(BaseRuleSet):
             self.elbow_angle,
             self.wrist_below_elbow,
             self.shoulder_stability,
-            self.upper_arm_vertical,
-            self.avoid_forward_shoulder_roll
+            self.upper_arm_vertical
         ]:
             passed, msg = rule_fn(landmarks)
             results.append({
@@ -145,10 +122,12 @@ class BicepCurlRules(BaseRuleSet):
                 "message": msg
             })
 
-        overall = all(r["passed"] for r in results)
-        self.count_reps(landmarks)
-        logging.info(f"Overall evaluation passed: {overall}")
-        logging.info(f"bicep curl Rep count: {self.rep_count}")
+        passed_count = sum(1 for r in results if r["passed"])
+        overall = passed_count >= 3
+        # overall = all(r["passed"] for r in results)
+        logging.info(f"Bicep Curl Rule Evaluation: Overall Passed: {overall}, Details: {results}")
+        self.count_reps(landmarks, rule_passed=overall)
+
         return {
             "overall_passed": overall,
             "rep_count": self.rep_count,

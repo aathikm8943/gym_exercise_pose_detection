@@ -71,11 +71,11 @@ class LateralRaiseRules(BaseRuleSet):
             logging.error(f"Missing keypoint: {e}")
             return False, f"Missing keypoint: {e}"
 
-    def count_reps(self, landmarks):
-        """
-        Counts repetitions based on vertical wrist movement relative to the shoulder.
-        """
+    def count_reps(self, landmarks, rule_passed: bool):
         try:
+            if not rule_passed:
+                return self.rep_count  # Don't count bad reps
+
             left_wrist_y = landmarks["left_wrist"][1]
             left_shoulder_y = landmarks["left_shoulder"][1]
 
@@ -98,6 +98,7 @@ class LateralRaiseRules(BaseRuleSet):
             logging.error(f"Missing keypoint for rep count: {e}")
             return self.rep_count
 
+
     def evaluate_all(self, landmarks):
         results = []
 
@@ -114,11 +115,14 @@ class LateralRaiseRules(BaseRuleSet):
                 "message": msg
             })
 
-        self.count_reps(landmarks)
+        passed_count = sum(1 for r in results if r["passed"])
+        overall = passed_count >= 3
+        
+        self.count_reps(landmarks, rule_passed=overall)
 
-        overall = all(r["passed"] for r in results)
         return {
             "overall_passed": overall,
             "rep_count": self.rep_count,
             "details": results
         }
+
